@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalkulator ROI nieruchomości za granicą</title>
+<style>
+  :root {
+    --primary: #4d6c8e;
+    --accent: #CC9436;
+    --bg: #f7f8fa;
+    --text: #1f2937;
+    --border: #e2e5ea;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 40px 16px;
+    display: flex;
+    justify-content: center;
+  }
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    padding: 32px;
+    max-width: 560px;
+    width: 100%;
+  }
+  h1 {
+    font-size: 22px;
+    margin: 0 0 4px;
+    color: var(--primary);
+  }
+  p.subtitle {
+    margin: 0 0 24px;
+    color: #6b7280;
+    font-size: 14px;
+  }
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 16px 0 6px;
+    color: #374151;
+  }
+  input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 15px;
+  }
+  input:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+  .results {
+    margin-top: 28px;
+    padding: 20px;
+    background: var(--bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 14px;
+  }
+  .result-row.main {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary);
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+    padding-top: 12px;
+  }
+  .result-row .accent { color: var(--accent); font-weight: 700; }
+  footer {
+    margin-top: 28px;
+    text-align: center;
+    font-size: 13px;
+    color: #9ca3af;
+  }
+  footer a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Kalkulator ROI nieruchomości za granicą</h1>
+  <p class="subtitle">Oszacuj roczny zwrot z inwestycji (ROI) i okres zwrotu dla zakupu nieruchomości pod wynajem.</p>
+
+  <label for="price">Cena zakupu nieruchomości (€)</label>
+  <input type="number" id="price" value="150000" min="0" step="1000">
+
+  <label for="rent">Przewidywany przychód z najmu miesięcznie (€)</label>
+  <input type="number" id="rent" value="900" min="0" step="10">
+
+  <label for="costs">Roczne koszty utrzymania (podatki, zarządzanie, czynsz wspólnotowy) (€)</label>
+  <input type="number" id="costs" value="1800" min="0" step="50">
+
+  <label for="vacancy">Przewidywana pustostan (% roku)</label>
+  <input type="number" id="vacancy" value="8" min="0" max="100" step="1">
+
+  <div class="results">
+    <div class="result-row"><span>Roczny przychód brutto z najmu</span><span id="grossIncome">—</span></div>
+    <div class="result-row"><span>Roczny przychód po uwzględnieniu pustostanu</span><span id="netIncome">—</span></div>
+    <div class="result-row"><span>Roczny zysk netto (po kosztach)</span><span id="netProfit">—</span></div>
+    <div class="result-row main"><span>ROI (roczny zwrot z inwestycji)</span><span class="accent" id="roi">—</span></div>
+    <div class="result-row"><span>Szacowany okres zwrotu inwestycji</span><span id="payback">—</span></div>
+  </div>
+
+  <footer>
+    Kalkulator udostępniony jako open source przez <a href="https://www.seaandhomes.com" target="_blank" rel="noopener">Sea and Homes</a> —
+    niezależnego Agenta Kupującego pomagającego inwestować w nieruchomości w 14 krajach ciepłego klimatu.
+    <br><br>
+    Chcesz pójść dalej? Ebook <a href="https://sklep.seaandhomes.com" target="_blank" rel="noopener"><strong>„Globalny Inwestor Nieruchomości"</strong></a> — 101 strategii inwestowania za granicą.
+  </footer>
+</div>
+
+<script>
+function format(n) {
+  return new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n);
+}
+
+function calculate() {
+  const price = parseFloat(document.getElementById('price').value) || 0;
+  const rent = parseFloat(document.getElementById('rent').value) || 0;
+  const costs = parseFloat(document.getElementById('costs').value) || 0;
+  const vacancy = parseFloat(document.getElementById('vacancy').value) || 0;
+
+  const grossIncome = rent * 12;
+  const netIncome = grossIncome * (1 - vacancy / 100);
+  const netProfit = netIncome - costs;
+  const roi = price > 0 ? (netProfit / price) * 100 : 0;
+  const payback = netProfit > 0 ? price / netProfit : Infinity;
+
+  document.getElementById('grossIncome').textContent = format(grossIncome);
+  document.getElementById('netIncome').textContent = format(netIncome);
+  document.getElementById('netProfit').textContent = format(netProfit);
+  document.getElementById('roi').textContent = roi.toFixed(2) + '%';
+  document.getElementById('payback').textContent = isFinite(payback) ? payback.toFixed(1) + ' lat' : '—';
+}
+
+document.querySelectorAll('input').forEach(el => el.addEventListener('input', calculate));
+calculate();
+</script>
+</body>
+</html>
